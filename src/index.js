@@ -1,67 +1,74 @@
 import p5 from 'p5'
 
-// Fourier
+import enableRecord from './recorder'
+enableRecord(600, 600)
 
-let time = 0
-const wave = []
-let alpha = 0
-let t = 1
-let k = 1
+// 3D Terrain Generation Perlin NOise
+
+let cols, rows
+let flying = 0.1
+let scl = 20
+let yRotation = 0
+let xRotation = 60
+let diff = 150
+const w = 1200
+const h = 1200
+
+let terrain = []
 
 const s = (p5) => {
 
     p5.setup = () => {
-        p5.createCanvas(800, 400)
+        p5.createCanvas(600, 600, p5.WEBGL)
+        p5.angleMode(p5.DEGREES)
+        cols = w / scl
+        rows = h / scl
+
     }
 
     p5.draw = () => {
-        let x = 0
-        let y = 0
 
-        p5.background(0)
-        p5.translate(0, 150)
-        p5.noFill()
-        for (let i = 0; i < 5; i++) {
-            for (let i = 0; i < 5; i++) {
-                let prevX = x
-                let prevY = y
-                let n = i * 2 + 1
-                let r = 10 * (4 / (n * p5.PI))
-                x += r * p5.cos(n * time)
-                y += r * p5.sin(n * time)
-
-
-                // p5.stroke(255, 100)
-                // p5.noFill()
-                // p5.ellipse(prevX, prevY, r * 2)
-                // p5.fill(255)
-                // p5.ellipse(x, y, 8)
-                // p5.noFill()
-                // p5.stroke(255)
-                // p5.line(prevX, prevY, x, y)
+        let yoff = flying
+        let xoff = 0
+        for (let y = 0; y < rows; y++) {
+            xoff = 0
+            terrain[y] = []
+            for (let x = 0; x < cols; x++) {
+                terrain[y][x] = p5.map(p5.noise(xoff, yoff), 0, 1, -100, diff)
+                xoff += 0.1
             }
-
-            p5.translate(10, 10)
-            // p5.line(x - 200, y, 0, wave[0])
-            p5.beginShape()
-            // p5.stroke(255)
-            p5.stroke(i * 60 + alpha, i * 30 - alpha, i * 15 + alpha)
-            for (let i = 0; i < wave.length; i++) {
-                p5.vertex(i, wave[i])
+            yoff -= 0.1
+        }
+        p5.background(p5.map(p5.noise(xoff, yoff), 0, 1, 120, 150), 100, 200)
+        p5.stroke(200, 50)
+        // p5.noFill()
+        p5.rotateX(xRotation)
+        p5.rotateY(yRotation)
+        p5.translate(-w / 2, -h / 2)
+        for (let y = 0; y < rows - 1; y++) {
+            p5.beginShape(p5.TRIANGLE_STRIP)
+            for (let x = 0; x < cols; x++) {
+                // p5.stroke(terrain[y][x], 50, 200)
+                p5.vertex(x * scl, y * scl, terrain[y][x])
+                p5.fill(terrain[y][x], 0, 200)
+                p5.noStroke()
+                p5.vertex(x * scl, (y + 1) * scl, terrain[y][x + 1])
             }
-            p5.endShape()
-
-
-            time -= 0.005
-
+            p5.endShape(p5.CLOSE)
         }
-        if (wave.length > 800) {
-            wave.pop()
+        xRotation += 0.01
+        flying += 0.1
+        if (diff > 300) {
+            if (yRotation < 180) {
+                yRotation += 0.5
+            } else {
+                diff -= 0.5
+                yRotation -= 0.5
+            }
+        } else {
+
+            diff += 0.5
         }
-        // alpha += 0.05
-        // t += 0.01
-        // k += 0.005
-        wave.unshift(y)
     }
 
 }

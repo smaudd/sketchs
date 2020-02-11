@@ -142,48 +142,8 @@ const s = (p5) => {
 
     //Key Bindings
     // R to redraw, S to save
-    p5.keyPressed = () => {
-        if (p5.key == 'r' || p5.key == 'R') {
-            p5.draw();
-        } else if (p5.key == 's' || p5.key == 'S') {
-            p5.save("###.jpg");
-        }
-    }
+ 
 
-    //For recording
-    const btn = document.querySelector('button')
-    const chunks = [];
-    console.log(btn)
-    function record() {
-        chunks.length = 0;
-        let stream = document.querySelector('canvas').captureStream(30),
-            recorder = new MediaRecorder(stream, { videoBitsPerSecond: 25000000 });
-        recorder.ondataavailable = e => {
-            if (e.data.size) {
-                chunks.push(e.data);
-            }
-        };
-        recorder.onstop = exportVideo;
-        btn.onclick = e => {
-            recorder.stop();
-            btn.textContent = 'start recording';
-            btn.onclick = record;
-        };
-        recorder.start();
-        btn.textContent = 'stop recording';
-    }
-
-    function exportVideo(e) {
-        var blob = new Blob(chunks);
-        var vid = document.createElement('video');
-        vid.id = 'recorded'
-        vid.controls = true;
-        vid.src = URL.createObjectURL(blob);
-        document.body.appendChild(vid);
-        vid.play();
-        console.log(vid)
-    }
-    btn.onclick = record;
 
 }
 
